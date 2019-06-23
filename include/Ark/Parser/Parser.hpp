@@ -9,6 +9,7 @@
 #include <Ark/Parser/ASTNode.hpp>
 #include <vector>
 #include <algorithm>
+#include <Ark/Parser/Node.hpp>
 
 namespace Ark
 {
@@ -37,14 +38,18 @@ namespace Ark
     class Parser : private internal::SimpleParser
     {
     public:
-        Parser(const std::string& code);
+        Parser(const std::string& code, const std::string& filename);
         ~Parser();
 
         void parse();
         void prettyPrintAST(std::ostream* os=nullptr);
+
+        const internal::Node& ast() const;
     
     private:
         internal::Program m_program;
+        std::string m_filename;
+        internal::Node m_internalAST;
 
         inline bool isKeyword(const std::string& name)
         {
@@ -54,6 +59,11 @@ namespace Ark
         inline bool isAssignOperator(const std::string& name)
         {
             return std::find(internal::assign_op.begin(), internal::assign_op.end(), name) != internal::assign_op.end();
+        }
+
+        inline bool isOperator(const std::string& name)
+        {
+            return std::find(internal::operators.begin(), internal::operators.end(), name) != internal::operators.end();
         }
 
         // custom parsers for tokens

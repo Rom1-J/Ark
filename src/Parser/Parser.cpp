@@ -4,8 +4,10 @@
 
 namespace Ark
 {
-    Parser::Parser(const std::string& code) :
-        internal::SimpleParser(code)
+    using namespace Ark::internal;
+
+    Parser::Parser(const std::string& code, const std::string& filename) :
+        m_filename(filename), internal::SimpleParser(code)
     {}
 
     Parser::~Parser()
@@ -25,11 +27,18 @@ namespace Ark
             else
                 m_program.children.push_back(std::move(inst.value()));
         }
+
+        // TODO transform m_program into m_internalAST
     }
 
     void Parser::prettyPrintAST(std::ostream* os)
     {
-        m_program.toString(*os, 0);
+        m_program.print(*os, 0);
+    }
+
+    const Node& Parser::ast() const
+    {
+        return m_internalAST;
     }
 
     bool Parser::operator_(std::string* s)
@@ -215,7 +224,7 @@ namespace Ark
         
         if (auto exp = parseExp())
         {
-            auto temp = std::make_shared<ConstDef>(varname, exp.value());
+            auto temp = std::make_shared<Mut>(varname, exp.value());
             if (!endOfLineAndOrComment())
                 error("Expected end of line after definition (mut)", "");
             return temp;
@@ -761,7 +770,7 @@ namespace Ark
         if (capture.empty())
             return std::make_shared<Function>(arguments, type, body);
         else
-            return std::make_shared<Closure>(capture, arguments, type, body);
+            return std::make_shared<Closure_>(capture, arguments, type, body);
     }
 
     MaybeNodePtr Parser::parseEnd()
@@ -939,11 +948,13 @@ namespace Ark
         return {};
     }
 
+    // TODO
     MaybeNodePtr Parser::parseWhile()
     {
         return {};
     }
 
+    // TODO
     MaybeNodePtr Parser::parseImport()
     {
         return {};

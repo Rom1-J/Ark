@@ -20,13 +20,13 @@ namespace Ark::internal
         ASTNode("program")
     {}
 
-    void Program::toString(std::ostream& os, std::size_t indent)
+    void Program::print(std::ostream& os, std::size_t indent)
     {
         os << "(Program";
         for (auto& node: children)
         {
             os << "\n";
-            node->toString(os, indent + 1);
+            node->print(os, indent + 1);
         }
         os << "\n)";
     }
@@ -38,11 +38,11 @@ namespace Ark::internal
         , ASTNode("let")
     {}
 
-    void Let::toString(std::ostream& os, std::size_t indent)
+    void Let::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Let\n";
         printIndent(os, indent + 1);     os << "(VarName " << varname << ")\n";
-                                        value->toString(os, indent + 1); os << "\n";
+                                        value->print(os, indent + 1); os << "\n";
         printIndent(os, indent);     os << ")";
     }
 
@@ -53,11 +53,11 @@ namespace Ark::internal
         , ASTNode("mut")
     {}
 
-    void Mut::toString(std::ostream& os, std::size_t indent)
+    void Mut::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Mut\n";
         printIndent(os, indent + 1);     os << "(VarName " << varname << ")\n";
-                                        value->toString(os, indent + 1); os << "\n";
+                                        value->print(os, indent + 1); os << "\n";
         printIndent(os, indent);     os << ")";
     }
 
@@ -68,12 +68,12 @@ namespace Ark::internal
         , ASTNode("assignment")
     {}
 
-    void Assignment::toString(std::ostream& os, std::size_t indent)
+    void Assignment::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Assignment\n";
         printIndent(os, indent + 1);     os << "(VarName " << varname << ")\n";
         printIndent(os, indent + 1);     os << op << "\n";
-                                        value->toString(os, indent + 1); os << "\n";
+                                        value->print(os, indent + 1); os << "\n";
         printIndent(os, indent);     os << ")";
     }
 
@@ -84,14 +84,14 @@ namespace Ark::internal
         , ASTNode("function")
     {}
 
-    void Function::toString(std::ostream& os, std::size_t indent)
+    void Function::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Function\n";
         printIndent(os, indent + 1);     os << "(Args";
         for (auto& node: arguments)
         {
             os << "\n";
-            node->toString(os, indent + 2);
+            node->print(os, indent + 2);
         }
         if (arguments.size() > 0)
         {
@@ -104,7 +104,7 @@ namespace Ark::internal
         for (auto& node: body)
         {
             os << "\n";
-            node->toString(os, indent + 2);
+            node->print(os, indent + 2);
         }
         if (body.size() > 0)
         {
@@ -117,19 +117,19 @@ namespace Ark::internal
 
     // ---------------------------
 
-    Closure::Closure(NodePtrList capture, NodePtrList arguments, const std::string& type, NodePtrList body) :
+    Closure_::Closure_(NodePtrList capture, NodePtrList arguments, const std::string& type, NodePtrList body) :
         capture(std::move(capture)), arguments(std::move(arguments)), type(type), body(std::move(body))
         , ASTNode("closure")
     {}
 
-    void Closure::toString(std::ostream& os, std::size_t indent)
+    void Closure_::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Closure\n";
         printIndent(os, indent + 1);     os << "(Capture";
         for (auto& node: capture)
         {
             os << "\n";
-            node->toString(os, indent + 2);
+            node->print(os, indent + 2);
         }
         if (capture.size() > 0)
         {
@@ -141,7 +141,7 @@ namespace Ark::internal
         for (auto& node: arguments)
         {
             os << "\n";
-            node->toString(os, indent + 2);
+            node->print(os, indent + 2);
         }
         if (arguments.size() > 0)
         {
@@ -154,7 +154,7 @@ namespace Ark::internal
         for (auto& node: body)
         {
             os << "\n";
-            node->toString(os, indent + 2);
+            node->print(os, indent + 2);
         }
         if (body.size() > 0)
         {
@@ -172,7 +172,7 @@ namespace Ark::internal
         , ASTNode("closure field call")
     {}
 
-    void ClosureFieldCall::toString(std::ostream& os, std::size_t indent)
+    void ClosureFieldCall::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(ClosureFieldCall\n";
         printIndent(os, indent + 1);     os << "(ObjectName " << objectname << ")\n";
@@ -181,7 +181,7 @@ namespace Ark::internal
         for (auto& node: args)
         {
             os << "\n";
-            node->toString(os, indent + 2);
+            node->print(os, indent + 2);
         }
         if (args.size() > 0)
         {
@@ -199,7 +199,7 @@ namespace Ark::internal
         , ASTNode("closure field read")
     {}
 
-    void ClosureFieldRead::toString(std::ostream& os, std::size_t indent)
+    void ClosureFieldRead::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(ClosureFieldRead\n";
         printIndent(os, indent + 1);     os << "(ObjectName " << objectname << ")\n";
@@ -214,7 +214,7 @@ namespace Ark::internal
         , ASTNode("if")
     {}
 
-    void IfClause::toString(std::ostream& os, std::size_t indent)
+    void IfClause::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(IfClause)";
     }
@@ -226,7 +226,7 @@ namespace Ark::internal
         , ASTNode("while")
     {}
 
-    void WhileLoop::toString(std::ostream& os, std::size_t indent)
+    void WhileLoop::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(WhileLoop)";
     }
@@ -238,7 +238,7 @@ namespace Ark::internal
         , ASTNode("integer")
     {}
 
-    void Integer::toString(std::ostream& os, std::size_t indent)
+    void Integer::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Integer " << value << ")";
     }
@@ -250,7 +250,7 @@ namespace Ark::internal
         , ASTNode("float")
     {}
 
-    void Float::toString(std::ostream& os, std::size_t indent)
+    void Float::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Float " << value << ")";
     }
@@ -262,7 +262,7 @@ namespace Ark::internal
         , ASTNode("string")
     {}
 
-    void String::toString(std::ostream& os, std::size_t indent)
+    void String::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(String \"" << value << "\")";
     }
@@ -274,7 +274,7 @@ namespace Ark::internal
         , ASTNode("bool")
     {}
 
-    void Bool::toString(std::ostream& os, std::size_t indent)
+    void Bool::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Bool " << (value ? "true" : "false") << ")";
     }
@@ -286,7 +286,7 @@ namespace Ark::internal
         , ASTNode("var use")
     {}
 
-    void VarUse::toString(std::ostream& os, std::size_t indent)
+    void VarUse::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(VarUse " << name << ")";
     }
@@ -298,7 +298,7 @@ namespace Ark::internal
         , ASTNode("operator")
     {}
 
-    void Operator::toString(std::ostream& os, std::size_t indent)
+    void Operator::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Operator " << name << ")";
     }
@@ -310,13 +310,13 @@ namespace Ark::internal
         , ASTNode("op list")
     {}
 
-    void OperationsList::toString(std::ostream& os, std::size_t indent)
+    void OperationsList::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(OperationsList";
         for (auto& node: operations)
         {
             os << "\n";
-            node->toString(os, indent + 1);
+            node->print(os, indent + 1);
         }
         if (operations.size() > 0)
             os << "\n";
@@ -330,7 +330,7 @@ namespace Ark::internal
         , ASTNode("function call")
     {}
 
-    void FunctionCall::toString(std::ostream& os, std::size_t indent)
+    void FunctionCall::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(FunctionCall\n";
         printIndent(os, indent + 1);     os << "(Name " << name << ")\n";
@@ -338,7 +338,7 @@ namespace Ark::internal
         for (auto& node: arguments)
         {
             os << "\n";
-            node->toString(os, indent + 2);
+            node->print(os, indent + 2);
         }
         if (arguments.size() > 0)
         {
@@ -355,7 +355,7 @@ namespace Ark::internal
         ASTNode("end")
     {}
 
-    void End::toString(std::ostream& os, std::size_t indent)
+    void End::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(End)";
     }
@@ -366,7 +366,7 @@ namespace Ark::internal
         ASTNode("elif")
     {}
 
-    void Elif::toString(std::ostream& os, std::size_t indent)
+    void Elif::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Elif)";
     }
@@ -377,7 +377,7 @@ namespace Ark::internal
         ASTNode("else")
     {}
 
-    void Else::toString(std::ostream& os, std::size_t indent)
+    void Else::print(std::ostream& os, std::size_t indent)
     {
         printIndent(os, indent);     os << "(Else)";
     }
@@ -389,8 +389,20 @@ namespace Ark::internal
         , ASTNode("argument")
     {}
 
-    void Argument::toString(std::ostream& os, std::size_t indent)
+    void Argument::print(std::ostream& os, std::size_t indent)
     {
-        printIndent(os, indent);     os << "(Argument " << varname << " " << type ")";
+        printIndent(os, indent);     os << "(Argument " << varname << " " << type << ")";
+    }
+
+    // ---------------------------
+
+    Capture::Capture(const std::string& varname) :
+        varname(varname)
+        , ASTNode("capture")
+    {}
+
+    void Capture::print(std::ostream& os, std::size_t indent)
+    {
+        printIndent(os, indent);     os << "(Capture " << varname << ")";
     }
 }

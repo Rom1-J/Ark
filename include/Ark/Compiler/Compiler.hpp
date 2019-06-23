@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <cinttypes>
+#include <memory>
 
 #include <Ark/Parser/Parser.hpp>
 #include <Ark/Parser/Node.hpp>
@@ -41,7 +42,7 @@ namespace Ark
 
         void pushNumber(uint16_t n, std::vector<internal::Inst>* page=nullptr);
 
-        Ark::Parser m_parser;
+        std::unique_ptr<Ark::Parser> m_parser;
         std::vector<std::string> m_symbols;
         std::vector<internal::CValue> m_values;
         std::vector<std::string> m_plugins;

@@ -4,6 +4,8 @@
 
 #include <Ark/Log.hpp>
 #include <Ark/FFI.hpp>
+#undef abs
+#include <Ark/Utils.hpp>
 
 namespace Ark
 {
@@ -15,13 +17,8 @@ namespace Ark
 
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
-        m_parser.feed(code, filename);
-        
-        if (!m_parser.check())
-        {
-            Ark::logger.error("[Compiler] Program has errors");
-            exit(1);
-        }
+        m_parser = std::make_unique<Parser>(code, filename);
+        m_parser->parse();
     }
 
     void Compiler::compile()
@@ -52,7 +49,7 @@ namespace Ark
                 Ark::logger.info("Compiling");
             // gather symbols, values, and start to create code segments
             m_code_pages.emplace_back();  // create empty page
-            _compile(m_parser.ast(), 0);
+            _compile(m_parser->ast(), 0);
         if (m_debug)
             Ark::logger.info("Adding symbols table");
         // push size

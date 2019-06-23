@@ -15,7 +15,7 @@ namespace Ark::internal
 
         const std::string nodename;
 
-        virtual void toString(std::ostream& os, std::size_t indent) = 0;
+        virtual void print(std::ostream& os, std::size_t indent) = 0;
     };
 
     using NodePtr = std::shared_ptr<ASTNode>;
@@ -42,7 +42,7 @@ namespace Ark::internal
 
         NodePtrList children;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     // ASTNode handling definition, i.e. let name = value
@@ -53,7 +53,7 @@ namespace Ark::internal
         const std::string varname;
         NodePtr value;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     // ASTNode handling definition: mut name = value
@@ -64,7 +64,7 @@ namespace Ark::internal
         const std::string varname;
         NodePtr value;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct Assignment : public ASTNode
@@ -75,7 +75,7 @@ namespace Ark::internal
         NodePtr value;
         const std::string op;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     // ASTNode handling function: fun name(arg1: A, arg2: B) -> C *body* end
@@ -87,19 +87,19 @@ namespace Ark::internal
         const std::string type;
         NodePtrList body;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
-    struct Closure : public ASTNode
+    struct Closure_ : public ASTNode
     {
-        Closure(NodePtrList capture, NodePtrList arguments, const std::string& type, NodePtrList body);
+        Closure_(NodePtrList capture, NodePtrList arguments, const std::string& type, NodePtrList body);
 
         NodePtrList capture;
         NodePtrList arguments;  // should be a vector of declaration
         const std::string type;
         NodePtrList body;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct ClosureFieldCall : public ASTNode
@@ -110,7 +110,7 @@ namespace Ark::internal
         const std::string funcname;
         NodePtrList args;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct ClosureFieldRead : public ASTNode
@@ -120,7 +120,7 @@ namespace Ark::internal
         const std::string objectname;
         const std::string field;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     /*
@@ -146,7 +146,7 @@ namespace Ark::internal
         NodePtrList elifClause;  // should be a vector of ifclause (acting as elifs)
         NodePtrList elseClause;  // contains the body of the else clause
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     /*
@@ -163,7 +163,7 @@ namespace Ark::internal
         NodePtr condition;
         NodePtrList body;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct Integer : public ASTNode
@@ -172,7 +172,7 @@ namespace Ark::internal
 
         const int value;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct Float : public ASTNode
@@ -181,7 +181,7 @@ namespace Ark::internal
 
         const float value;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct String : public ASTNode
@@ -190,7 +190,7 @@ namespace Ark::internal
 
         const std::string value;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct Bool : public ASTNode
@@ -199,7 +199,7 @@ namespace Ark::internal
 
         const bool value;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct VarUse : public ASTNode
@@ -208,7 +208,7 @@ namespace Ark::internal
 
         const std::string name;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct Operator : public ASTNode
@@ -217,7 +217,7 @@ namespace Ark::internal
 
         const std::string name;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct OperationsList : public ASTNode
@@ -226,7 +226,7 @@ namespace Ark::internal
 
         NodePtrList operations;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct FunctionCall : public ASTNode
@@ -236,7 +236,7 @@ namespace Ark::internal
         const std::string name;
         NodePtrList arguments;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     // shouldn't be in the AST
@@ -245,21 +245,21 @@ namespace Ark::internal
     {
         End();
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct Elif : public ASTNode
     {
         Elif();
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct Else : public ASTNode
     {
         Else();
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
     };
 
     struct Argument : public ASTNode
@@ -269,7 +269,16 @@ namespace Ark::internal
         const std::string varname;
         const std::string type;
 
-        virtual void toString(std::ostream& os, std::size_t indent);
+        void print(std::ostream& os, std::size_t indent) override;
+    };
+
+    struct Capture : public ASTNode
+    {
+        Capture(const std::string& varname);
+
+        const std::string varname;
+
+        void print(std::ostream& os, std::size_t indent) override;
     };
 }
 

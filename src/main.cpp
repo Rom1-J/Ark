@@ -9,6 +9,7 @@
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/Log.hpp>
+#include <Ark/Utils.hpp>
 
 void compile(bool debug, bool timer, const std::string& file, const std::string& output)
 {
