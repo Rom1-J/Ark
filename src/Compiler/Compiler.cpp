@@ -17,7 +17,7 @@ namespace Ark
 
     void Compiler::feed(const std::string& code, const std::string& filename)
     {
-        m_parser = std::make_unique<Parser>(code, filename);
+        m_parser = std::make_unique<Parser>(code, filename, m_debug);
         m_parser->parse();
     }
 

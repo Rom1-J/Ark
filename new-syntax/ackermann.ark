@@ -1,0 +1,13 @@
+let ackermann = fun (m: int, n: int) -> int
+    if m > 0 then
+        if n == 0 then
+            ackermann(m - 1, 1)
+        else
+            ackermann(m - 1, ackermann(m, n - 1))
+        end
+    else
+        n + 1
+    end
+end
+
+let result = ackermann(3, 6)

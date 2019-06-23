@@ -21,7 +21,7 @@ namespace Ark
             "let", "mut", "fun", "ret", "end",
             "if", "then", "elif", "else",
             "while", "do",
-            "import"
+            "import", "use"
         };
 
         const std::vector<std::string> assign_op = {
@@ -38,7 +38,7 @@ namespace Ark
     class Parser : private internal::SimpleParser
     {
     public:
-        Parser(const std::string& code, const std::string& filename);
+        Parser(const std::string& code, const std::string& filename, bool debug=false);
         ~Parser();
 
         void parse();
@@ -50,6 +50,7 @@ namespace Ark
         internal::Program m_program;
         std::string m_filename;
         internal::Node m_internalAST;
+        bool m_debug;
 
         inline bool isKeyword(const std::string& name)
         {

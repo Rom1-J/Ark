@@ -1,0 +1,3 @@
+let a = 5
+mut b = 5
+let c = fun () -> 12 end

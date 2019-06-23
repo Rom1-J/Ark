@@ -6,8 +6,8 @@ namespace Ark
 {
     using namespace Ark::internal;
 
-    Parser::Parser(const std::string& code, const std::string& filename) :
-        m_filename(filename), internal::SimpleParser(code)
+    Parser::Parser(const std::string& code, const std::string& filename, bool debug) :
+        m_filename(filename), m_debug(debug), internal::SimpleParser(code)
     {}
 
     Parser::~Parser()
@@ -27,6 +27,9 @@ namespace Ark
             else
                 m_program.children.push_back(std::move(inst.value()));
         }
+
+        if (m_debug)
+            prettyPrintAST(&std::cout);
 
         // TODO transform m_program into m_internalAST
     }
@@ -95,12 +98,13 @@ namespace Ark
         return endOfLine(s);
     }
 
+    // TODO
     bool Parser::type_(std::string* s)
     {
         if (!name(s))
             return false;
-        if (accept(IsSpace, s) && accept(IsChar('-'), s) && accept(IsChar('>'), s) && accept(IsSpace, s))
-            return type_(s);
+        //if (accept(IsSpace, s) && accept(IsChar('-'), s) && accept(IsChar('>'), s) && accept(IsSpace, s))
+        //    return type_(s);
         return true;
     }
 
@@ -179,8 +183,7 @@ namespace Ark
         
         inlineSpace();
         // checking for value
-        if (!accept(IsChar('=')))
-            return {};
+        except(IsChar('='));
         
         inlineSpace();
 
@@ -397,6 +400,11 @@ namespace Ark
             return exp;
         else
             back(getCount() - current + 1);
+        
+        if (auto exp = parseFunction())  // fun (a: T, ...): T {body} end
+            return exp;
+        else
+            back(getCount() - current + 1);
 
         // parsing float before integer because float requires a '.'
         if (auto exp = parseFloat())  // 1.5
@@ -431,11 +439,6 @@ namespace Ark
         
         // must the last one, otherwise it would try to parse function/method calls
         if (auto exp = parseVarUse())  // varname
-            return exp;
-        else
-            back(getCount() - current + 1);
-        
-        if (auto exp = parseFunction())  // fun (a: T, ...): T {body} end
             return exp;
         else
             back(getCount() - current + 1);
@@ -694,6 +697,11 @@ namespace Ark
                 if (accept(IsChar(',')))
                     continue;
             }
+
+            inlineSpace();
+            std::string keyword = "";
+            if (!name(&keyword) || keyword != "fun")
+                error("Expected keyword 'fun' after 'use'", keyword);
         }
 
         inlineSpace();
