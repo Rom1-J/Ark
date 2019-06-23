@@ -1,42 +1,92 @@
 #ifndef ark_parser
 #define ark_parser
 
+#include <Ark/Parser/SimpleParser.hpp>
 #include <string>
-#include <list>
+#include <sstream>
 #include <iostream>
+#include <optional>
+#include <Ark/Parser/ASTNode.hpp>
 #include <vector>
-
-#include <Ark/Parser/Lexer.hpp>
-#include <Ark/Parser/Node.hpp>
+#include <algorithm>
 
 namespace Ark
 {
-    class Parser
+    using MaybeNodePtr = std::optional<internal::NodePtr>;
+
+    namespace internal
+    {
+        const std::vector<std::string> keywords = {
+            "let", "mut", "fun", "ret", "end",
+            "if", "then", "elif", "else",
+            "while", "do",
+            "import"
+        };
+
+        const std::vector<std::string> assign_op = {
+            "+", "-", "*", "/", "<<", ">>", "~"
+        };
+
+        const std::vector<std::string> operators = {
+            "+", "-", "*", "/", "<<", ">>", "~",
+            "and", "or", "not", "==", "!=", "<",
+            ">", "<=", ">="
+        };
+    }
+
+    class Parser : private internal::SimpleParser
     {
     public:
-        Parser(bool debug=false);
+        Parser(const std::string& code);
+        ~Parser();
 
-        void feed(const std::string& code, const std::string& filename="FILE");
-        bool check();
-        const internal::Node& ast() const;
-
-        friend std::ostream& operator<<(std::ostream& os, const Parser& P);
-
+        void parse();
+        void prettyPrintAST(std::ostream* os=nullptr);
+    
     private:
-        bool m_debug;
-        internal::Lexer m_lexer;
-        internal::Node m_ast;
+        internal::Program m_program;
 
-        std::string m_file;
-        std::vector<std::string> m_parent_include;
+        inline bool isKeyword(const std::string& name)
+        {
+            return std::find(internal::keywords.begin(), internal::keywords.end(), name) != internal::keywords.end();
+        }
 
-        void sugar(std::vector<internal::Token>& tokens);
-        internal::Node compile(std::list<internal::Token>& tokens);
-        internal::Node atom(const internal::Token& token);
-        bool checkForInclude(internal::Node& n);
-        void checkForQuote(internal::Node& n);
-        bool _check(const internal::Node& ast);
+        inline bool isAssignOperator(const std::string& name)
+        {
+            return std::find(internal::assign_op.begin(), internal::assign_op.end(), name) != internal::assign_op.end();
+        }
+
+        // custom parsers for tokens
+        bool operator_(std::string* s=nullptr);
+        bool inlineSpace(std::string* s=nullptr);
+        bool endOfLine(std::string* s=nullptr);
+        bool comment(std::string* s=nullptr);
+        bool endOfLineAndOrComment(std::string* s=nullptr);
+        bool type_(std::string* s=nullptr);
+
+        // parsers
+        MaybeNodePtr parseInstruction();
+
+        MaybeNodePtr parseLet();
+        MaybeNodePtr parseMut();
+        MaybeNodePtr parseAssignment();
+        MaybeNodePtr parseExp();
+            MaybeNodePtr parseOperation();
+            MaybeNodePtr parseSingleExp();
+                MaybeNodePtr parseOperationBlock();
+                MaybeNodePtr parseInt();
+                MaybeNodePtr parseFloat();
+                MaybeNodePtr parseString();
+                MaybeNodePtr parseBool();
+                MaybeNodePtr parseFunctionCall();
+                MaybeNodePtr parseClosureFieldReading();
+                MaybeNodePtr parseVarUse();
+                MaybeNodePtr parseFunction();
+        MaybeNodePtr parseEnd();
+        MaybeNodePtr parseIf();
+        MaybeNodePtr parseWhile();
+        MaybeNodePtr parseImport();
     };
 }
 
-#endif  // ark_parser
+#endif

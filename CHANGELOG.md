@@ -7,6 +7,8 @@
 
 ### Changed
 - moved everything from the "folder namespaces" to a single `Ark::internal` namespace
+- rewriting the lexer/parser/AST system
+- new syntax, see `doc/syntax.md` for more informations
 
 ### Removed
 
